@@ -41,4 +41,40 @@ daemon(0,1);
 ```
 If you are curious about low-level linux i/o, just do a quick google search of the functions open() read() write() and close(). In summary, I created a function at the end of the source code file called "signal_handler" that handles signals by closing the file being operated on. A signal is something a computer passes to every program when unique events occur such as a computer shutting down, in which the computer will send a SIGTERM signal, which is a polite way to ask the program to terminate before it kills the PID. SIGINT is the signal sent when you ctrl+z or ctrl+d a program running in console. Hopefully you know the dangers of not closing an opened file when you are done with it. The next statement is a doozie: ```ioctl(fd,EVIOCGRAB,1);```, just know that this function makes the opened file only readable by this program. This function is core, without it the computer would read the number pressed on the Naga, as well as the keybind. Finally, ```daemon(0,1);``` makes this program turn into a background process. The parameters don't impact the functionality of the program, it just helps with debugging. Do a quick google search if you are curious as to what each means.
 
+Admitingly, the rest of the program is a little hard to follow and could be written better. I will focus more on the logic rather than what was actually written.
+```c
+/set curr to 4 because, for whatever reason, 4 is the first # given from keycode (doesn't have any relevance here)
+    int prev, curr = 4, last_successful_code = -1;
+    //see "/usr/include/linux/input.h" for structure interface
+    struct input_event sieobj;
+
+    //ignore the logic of testing each iteration. A lot of behind the scenes tweaking went in to make this work
+    while(1){
+        if(read(fd, &sieobj, sizeof(struct input_event)) != EOF){
+            prev = curr;
+            curr = sieobj.code;
+
+            //if this conditional is true, "prev - 1" contains the keycode to be enacted upon
+            if(prev != -1 && curr == 0){
+                //manually adding in non-intentional-button-repetition negation
+                if(last_successful_code == -1){
+                     last_successful_code = prev;
+                }else if(last_successful_code == prev){
+                    last_successful_code = -1;
+                    continue;
+                }else{
+                    last_successful_code = -1;
+                }
+                
+                char buff[40];
+                snprintf(buff,40,"xdotool key %s",keybind[prev-2]);
+                //making the system call to simulate keyboard input of keybinds 
+                system(buff);
+            }
+        }
+        
+        //Giving cpu a 1 millisecond break
+        usleep(1000);
+    }
+```
 
