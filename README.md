@@ -43,38 +43,38 @@ If you are curious about low-level linux i/o, just do a quick google search of t
 
 Admitingly, the rest of the program is a little hard to follow and could be written better. I will focus more on the logic rather than what was actually written.
 ```c
-/set curr to 4 because, for whatever reason, 4 is the first # given from keycode (doesn't have any relevance here)
-    int prev, curr = 4, last_successful_code = -1;
-    //see "/usr/include/linux/input.h" for structure interface
-    struct input_event sieobj;
+//set curr to 4 because, for whatever reason, 4 is the first # given from keycode (doesn't have any relevance here)
+int prev, curr = 4, last_successful_code = -1;
+//see "/usr/include/linux/input.h" for structure interface
+struct input_event sieobj;
 
-    //ignore the logic of testing each iteration. A lot of behind the scenes tweaking went in to make this work
-    while(1){
-        if(read(fd, &sieobj, sizeof(struct input_event)) != EOF){
-            prev = curr;
-            curr = sieobj.code;
+//ignore the logic of testing each iteration. A lot of behind the scenes tweaking went in to make this work
+while(1){
+    if(read(fd, &sieobj, sizeof(struct input_event)) != EOF){
+        prev = curr;
+        curr = sieobj.code;
 
-            //if this conditional is true, "prev - 1" contains the keycode to be enacted upon
-            if(prev != -1 && curr == 0){
-                //manually adding in non-intentional-button-repetition negation
-                if(last_successful_code == -1){
-                     last_successful_code = prev;
-                }else if(last_successful_code == prev){
-                    last_successful_code = -1;
-                    continue;
-                }else{
-                    last_successful_code = -1;
-                }
-                
-                char buff[40];
-                snprintf(buff,40,"xdotool key %s",keybind[prev-2]);
-                //making the system call to simulate keyboard input of keybinds 
-                system(buff);
+        //if this conditional is true, "prev - 1" contains the keycode to be enacted upon
+        if(prev != -1 && curr == 0){
+            //manually adding in non-intentional-button-repetition negation
+            if(last_successful_code == -1){
+                 last_successful_code = prev;
+            }else if(last_successful_code == prev){
+                last_successful_code = -1;
+                continue;
+            }else{
+                last_successful_code = -1;
             }
+            
+            char buff[40];
+            snprintf(buff,40,"xdotool key %s",keybind[prev-2]);
+            //making the system call to simulate keyboard input of keybinds 
+            system(buff);
         }
-        
-        //Giving cpu a 1 millisecond break
-        usleep(1000);
     }
+    
+    //Giving cpu a 1 millisecond break
+    usleep(1000);
+}
 ```
 
