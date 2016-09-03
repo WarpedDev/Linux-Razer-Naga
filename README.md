@@ -25,6 +25,20 @@ Next up are the keybinds. These keybinds will be the keys associated with the pr
 #define KEYBIND_4       "ctrl+alt+F4"
 ```
 
-Next, 
+Next is signal handling, low-level i/o with error handling, and daemons.
+```c
+int fd;
+if((fd = open(INPUT_PATH,O_RDONLY)) == -1){
+    printf("File Doesn't Exist\n");
+    exit(0);
+}
+fd_to_be_closed = fd;
+signal(SIGINT, signal_handler);
+signal(SIGTERM, signal_handler);
+
+ioctl(fd,EVIOCGRAB,1);
+daemon(0,1);
+```
+If you are curious about low-level linux i/o, just do a quick google search of the functions open() read() write() and close(). In summary, I created a function at the end of the source code file called "signal_handler" that handles signals by closing the file being operated on. A signal is something a computer passes to every program when unique events occur such as a computer shutting down, in which the computer will send a SIGTERM signal, which is a polite way to ask the program to terminate before it kills the PID. SIGINT is the signal sent when you ctrl+z or ctrl+d a program running in console. Hopefully you know the dangers of not closing an opened file when you are done with it. 
 
 
