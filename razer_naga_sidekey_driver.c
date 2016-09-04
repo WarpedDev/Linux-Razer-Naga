@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <string.h>
-#include "/usr/include/linux/input.h"
+#include <linux/input.h>
 
 #define INPUT_PATH "/dev/input/event9" //event9 is naga sidekey input file. The event# may be different elsewhere
 
