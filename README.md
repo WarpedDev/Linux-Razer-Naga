@@ -1,11 +1,13 @@
 # Linux-Razer-Naga
 Source code for handling Razer Naga related things. 
 
-These programs are written in C, are tested thoroughly, and work beautfully, but you might need to tweak a couple things since these programs work close to hardware.
-
 
 
 #Breakdown of razer_naga_sidekey_driver.c 
+
+###Known Issues:
+1. Daemon is terminated on system suspension.
+2. Trouble making this program run on startup without having to type in sudo password without having to worry about security risks.
 
 If you are new to C, don't understand the basics of structures, or don't understand basic file I/O, this might be a little hard to follow so bear with me. I'm going to try to go through the code from top to bottom.
 
